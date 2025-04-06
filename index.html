@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Vocabulary Quiz</title>
+<style>
+body {
+  background-color: #121212;
+  color: #ffffff;
+  font-family: Arial, sans-serif;
+  padding: 20px;
+}
+.quiz-container {
+  max-width: 600px;
+  margin: auto;
+}
+.question {
+  margin-bottom: 20px;
+}
+.options button {
+  display: block;
+  width: 100%;
+  background-color: #1f1f1f;
+  color: white;
+  border: 1px solid #333;
+  padding: 10px;
+  margin: 5px 0;
+  cursor: pointer;
+  text-align: left;
+}
+.options button:hover {
+  background-color: #333;
+}
+.options button.correct {
+  background-color: #1b5e20;
+  border-color: #2e7d32;
+}
+.options button.incorrect {
+  background-color: #b71c1c;
+  border-color: #c62828;
+}
+.options button.disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+.feedback {
+  margin-top: 10px;
+  padding: 15px;
+  border-radius: 5px;
+  background-color: #333;
+}
+.score {
+  font-size: 1.2em;
+  margin-top: 20px;
+}
+.progress-bar {
+  width: 100%;
+  background-color: #333;
+  border-radius: 5px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+.progress-bar-fill {
+  height: 20px;
+  background-color: #03dac6;
+  width: 0%;
+  transition: width 0.3s ease;
+}
+.button {
+  background-color: #03dac6;
+  color: #000;
+  border: none;
+  padding: 10px 20px;
+  margin-top: 15px;
+  cursor: pointer;
+  font-weight: bold;
+  border-radius: 4px;
+}
+.button:hover {
+  background-color: #00bfa5;
+}
+.next-button {
+  display: none;
+}
+.hint {
+  color: #ff9800;
+  margin-top: 10px;
+}
+.meaning {
+  color: #4caf50;
+  margin-top: 5px;
+}
+.level-nav {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.level-button {
+  background-color: #333;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  cursor: pointer;
+  border-radius: 4px;
+  flex-grow: 1;
+  margin: 0 5px;
+}
+.level-button.active {
+  background-color: #03dac6;
+  color: #000;
+}
+.level-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.level-title {
+  font-size: 1.5em;
+  font-weight: bold;
+}
+.level-completion {
+  font-size: 0.9em;
+  color: #03dac6;
+}
+</style>
+</head>
+<body>
+<div class="quiz-container">
+<h1>Vocabulary Quiz</h1>
+
+<div class="level-nav">
+  <button id="level1Btn" class="level-button active">Level 1: Beginner</button>
+  <button id="level2Btn" class="level-button">Level 2: Intermediate</button>
+  <button id="level3Btn" class="level-button">Level 3: Advanced</button>
+</div>
+
+<div class="level-info">
+  <div id="levelTitle" class="level-title">Level 1: Beginner</div>
+  <div id="levelCompletion" class="level-completion">0/34 Completed</div>
+</div>
+
+<div class="progress-bar">
+  <div class="progress-bar-fill" id="progressBar"></div>
+</div>
+<div id="question" class="question"></div>
+<div id="options" class="options"></div>
+<div id="feedback" class="feedback" style="display: none;">
+  <div id="result"></div>
+  <div id="meaning" class="meaning"></div>
+  <div id="hint" class="hint"></div>
+  <button id="nextBtn" class="button next-button">Next Question</button>
+</div>
+<div id="score" class="score"></div>
+<div id="levelComplete" style="display: none;">
+  <h2>Level Complete!</h2>
+  <p id="levelScore"></p>
+  <button id="nextLevelBtn" class="button">Go to Next Level</button>
+  <button id="restartLevelBtn" class="button" style="background-color: #ff5722;">Restart Level</button>
+</div>
+</div>
+<script>
+const vocabularyData = [
+  ["Laconic", "Using few words", "Laconic = Lack of words"],
+  ["Conciseness", "Being brief and to the point", "Concise = Cut the nonsense"],
+  ["Insipid", "Lacking flavor or interest", "Insipid = In-sip-id = so dull you barely sip it"],
+  ["Pragmatic", "Practical and realistic", "Pragmatic = Practical-automatic decisions"],
+  ["Iconoclast", "One who attacks established beliefs", "Icon breaker"],
+  ["Arduous", "Difficult and tiring", "Hard for 'us' = Arduous"],
+  ["Profligate", "Wastefully extravagant", "Profit-gate = money goes out like a gate"],
+  ["Prosaic", "Dull, lacking imagination", "Prosaic = Like prose = Boring"],
+  ["Ameliorate", "To improve or make better", "Amelia makes things better"],
+  ["Obsequious", "Overly submissive or eager to please", "Obedient-seekers"],
+  ["Capricious", "Impulsive, unpredictable", "Capri pants in winter = random choice"],
+  ["Fortuitous", "Happening by chance, lucky", "Fortune-it-us"],
+  ["Orthodox", "Traditional, conforming to rules", "Ortho = straight, Dox = doctrine"],
+  ["Alacrity", "Cheerful readiness", "A-laugh-ready"],
+  ["Pellucid", "Clear, easy to understand", "Lucid = clear"],
+  ["Corroborate", "To confirm or give support", "Collaborate to confirm"],
+  ["Magnanimous", "Generous, forgiving", "Magnum = big heart"],
+  ["Scrupulous", "Very careful and honest", "Screws everything into place neatly"],
+  ["Prolific", "Productive", "Pro-lots-of-it"],
+  ["Dogmatic", "Dictatorial in opinions", "Dogma = rigid beliefs"],
+  ["Placate", "To calm or pacify", "Place-a-calm"],
+  ["Mercurial", "Unpredictable, moody", "Mercury = liquid, ever-changing"],
+  ["Exacerbate", "To make worse", "Exact-worse-state"],
+  ["Redundant", "Repetitive, unnecessary", "Redone again and again"],
+  ["Hackneyed", "Overused, clichéd", "Hacked again and again"],
+  ["Prudent", "Careful, wise", "Prudent = President = wise decisions"],
+  ["Belie", "To give a false impression", "Be-lie = Lie in being"],
+  ["Esoteric", "Understood by few", "ESO = elite secret order"],
+  ["Cacophony", "Harsh noise", "Cacophony = 'Caco' (bad) + 'phony' (sound)"],
+  ["Impetuous", "Acting quickly without thought", "Impulsive like a pet"],
+  ["Methodical", "Systematic and organized", "Method = order"],
+  ["Idiosyncrasy", "Peculiar trait", "Idiot + synch = weird sync"],
+  ["Extant", "Still existing", "Existent and not extinct"],
+  ["Obscure", "Unclear, hard to understand", "Obscured view"],
+  ["Didactic", "Intended to teach", "Didactic = dictator teaching"],
+  ["Pithy", "Concise and meaningful", "Full of 'pith' (essence)"],
+  ["Copious", "Abundant", "Copy-us = lots of copies"],
+  ["Ostentation", "Showy display", "Ostentatious = show-off"],
+  ["Adulterate", "To make impure", "Adult-erate = spoil something pure"],
+  ["Vociferous", "Loud and noisy", "Voice + furious"],
+  ["Taciturn", "Silent, not talkative", "Takes turn to talk = rarely"],
+  ["Obdurate", "Stubborn", "Durable in opinion"],
+  ["Garrulous", "Talkative", "Girls are often labeled this (stereotype)"],
+  ["Misanthrope", "Hater of mankind", "Miss-anthro = hates humans"],
+  ["Lionize", "To treat as a celebrity", "Make someone a lion = star"],
+  ["Imminent", "About to happen", "Immediate moment"],
+  ["Frivolous", "Not serious", "Frills = decorative = not important"],
+  ["Benign", "Harmless", "Bene = good"],
+  ["Dissonance", "Lack of harmony", "Dis + sonance (sound)"],
+  ["Exculpate", "To free from blame", "Ex-culprit"],
+  ["Inculpate", "To blame", "In-culprit"],
+  ["Compliant", "Obedient", "Complies easily"],
+  ["Sporadic", "Occasional", "Spots of activity"],
+  ["Prevaricate", "To lie or evade truth", "Pre-verify = avoid truth"],
+  ["Chicanery", "Deception", "Chicken + trickery"],
+  ["Gainsay", "To deny", "Gain? Say NO."],
+  ["Eulogy", "Praise after death", "Eu = good + logy = speech"],
+  ["Belligerent", "Aggressive", "Bellum = war"],
+  ["Dispassionate", "Unemotional, impartial", "Without passion"],
+  ["Providential", "Lucky, fortunate", "Provided by divine luck"],
+  ["Diffidence", "Shyness due to lack of confidence", "Difficult to be confident"],
+  ["Fractious", "Irritable, quarrelsome", "Fractured mood"],
+  ["Malign", "To speak evil of", "Mal = bad"],
+  ["Disparate", "Different", "Dis + separate"],
+  ["Plausible", "Believable", "Applause = seems right"],
+  ["Sanguine", "Optimistic", "Sang = blood = life = hope"],
+  ["Venerate", "To respect deeply", "Reverent = Venerate"],
+  ["Trite", "Overused and unoriginal", "Tried too many times"],
+  ["Succinct", "Brief and clear", "Sucked into few words"],
+  ["Ingenious", "Clever", "Engineered with genius"],
+  ["Meticulous", "Very careful", "Meter = measure every detail"],
+  ["Erudite", "Scholarly", "Rude but right — knows it all"],
+  ["Bolster", "To support", "Bolster = Pillow = Support"],
+  ["Anachronism", "Something out of its time", "Ana + Chronos (time mismatch)"],
+  ["Trivial", "Unimportant", "Trivia = small facts"],
+  ["Advocate", "Support publicly", "Advocate = Voice for"],
+  ["Conspicuous", "Easily seen", "Can spot you"],
+  ["Innocuous", "Harmless", "Not noxious"],
+  ["Audacious", "Bold", "Audio + Courageous"],
+  ["Tumultuous", "Noisy and chaotic", "Too much tumult"],
+  ["Reticent", "Reserved", "Reluctant to talk"],
+  ["Fervid", "Intensely passionate", "Feverish love"],
+  ["Innovate", "To introduce something new", "New within"],
+  ["Prodigal", "Wastefully extravagant", "Pro + dig all money out"],
+  ["Auspicious", "Favorable", "Auspice = lucky sign"],
+  ["Soporific", "Sleep-inducing", "So-poor-fic = boring = sleep"],
+  ["Engender", "To cause or give rise to", "Generate"],
+  ["Loquacious", "Talkative", "Loqu = speak a lot"],
+  ["Equivocate", "Use ambiguous language", "Equal + Vocal = both sides"],
+  ["Inimical", "Hostile", "Enemy-cal"],
+  ["Superfluous", "Unnecessary", "Overflowing"],
+  ["Fastidious", "Very attentive to detail", "Fast to notice mistakes"],
+  ["Recalcitrant", "Stubbornly disobedient", "Can't be recalibrated"],
+  ["Ephemeral", "Short-lived", "FM radio – here and gone"],
+  ["Pusillanimous", "Cowardly", "Pussy-animal"],
+  ["Vacillate", "To waver", "Sway like a fan"],
+  ["Ambivalent", "Having mixed feelings", "Am-bi = both + valent = values"],
+  ["Enigma", "Puzzle, mystery", "Enigmatic = can't figure out"],
+  ["Euphoric", "Extremely happy", "Euphoria = top joy"],
+  ["Pedant", "Someone overly concerned with rules or minor details", "Pedantic teacher"],
+  ["Profound", "Deep and meaningful", "Found in the depths"]
+];
+
+// Divide into three levels - shuffle first so each quiz experience is different
+const shuffledData = [...vocabularyData].sort(() => Math.random() - 0.5);
+const wordCount = shuffledData.length;
+const wordsPerLevel = Math.ceil(wordCount / 3);
+
+// Create three levels
+const levels = [
+  {
+    title: "Level 1: Beginner",
+    words: shuffledData.slice(0, wordsPerLevel).map(item => ({
+      word: item[0],
+      meaning: item[1],
+      trick: item[2]
+    }))
+  },
+  {
+    title: "Level 2: Intermediate",
+    words: shuffledData.slice(wordsPerLevel, wordsPerLevel * 2).map(item => ({
+      word: item[0],
+      meaning: item[1],
+      trick: item[2]
+    }))
+  },
+  {
+    title: "Level 3: Advanced",
+    words: shuffledData.slice(wordsPerLevel * 2).map(item => ({
+      word: item[0],
+      meaning: item[1],
+      trick: item[2]
+    }))
+  }
+];
+
+let currentLevel = 0;
+let currentQuestion = 0;
+let score = 0;
+let answered = false;
+let levelScores = [0, 0, 0];
+let levelProgress = [0, 0, 0];
+
+// Initialize level buttons
+document.getElementById("level1Btn").addEventListener("click", () => switchLevel(0));
+document.getElementById("level2Btn").addEventListener("click", () => switchLevel(1));
+document.getElementById("level3Btn").addEventListener("click", () => switchLevel(2));
+
+function switchLevel(levelIndex) {
+  // Save current progress
+  levelProgress[currentLevel] = currentQuestion;
+  levelScores[currentLevel] = score;
+  
+  // Update level
+  currentLevel = levelIndex;
+  currentQuestion = levelProgress[levelIndex];
+  score = levelScores[levelIndex];
+  
+  // Update UI
+  updateLevelUI();
+  
+  // Start level
+  if (currentQuestion >= levels[currentLevel].words.length) {
+    showLevelComplete();
+  } else {
+    document.getElementById("levelComplete").style.display = "none";
+    showQuestion();
+  }
+}
+
+function updateLevelUI() {
+  // Update level buttons
+  document.querySelectorAll(".level-button").forEach((btn, index) => {
+    if (index === currentLevel) {
+      btn.classList.add("active");
+    } else {
+      btn.classList.remove("active");
+    }
+  });
+  
+  // Update level title and completion
+  document.getElementById("levelTitle").innerText = levels[currentLevel].title;
+  document.getElementById("levelCompletion").innerText = `${Math.min(currentQuestion, levels[currentLevel].words.length)}/${levels[currentLevel].words.length} Completed`;
+}
+
+function showQuestion() {
+  answered = false;
+  document.getElementById("feedback").style.display = "none";
+  document.getElementById("score").innerText = `Score: ${score}`;
+  
+  const currentLevelWords = levels[currentLevel].words;
+  if (currentQuestion >= currentLevelWords.length) {
+    showLevelComplete();
+    return;
+  }
+  
+  const q = currentLevelWords[currentQuestion];
+  document.getElementById("question").innerText = `What does "${q.word}" mean?`;
+  
+  // Get 3 random wrong answers from all words
+  const allMeanings = vocabularyData.map(item => item[1]);
+  const wrongOptions = allMeanings.filter(meaning => meaning !== q.meaning);
+  wrongOptions.sort(() => Math.random() - 0.5);
+  
+  const options = [q.meaning, wrongOptions[0], wrongOptions[1], wrongOptions[2]];
+  options.sort(() => Math.random() - 0.5);
+  
+  document.getElementById("options").innerHTML = "";
+  options.forEach(option => {
+    const btn = document.createElement("button");
+    btn.innerText = option;
+    btn.addEventListener("click", () => {
+      if (!answered) {
+        checkAnswer(option, q.meaning, q.trick, q.word, btn);
+      }
+    });
+    document.getElementById("options").appendChild(btn);
+  });
+  
+  updateProgress();
+  updateLevelUI();
+}
+
+function checkAnswer(selected, correct, trick, word, selectedButton) {
+  answered = true;
+  const feedback = document.getElementById("feedback");
+  const resultElement = document.getElementById("result");
+  const meaningElement = document.getElementById("meaning");
+  const hintElement = document.getElementById("hint");
+  const nextButton = document.getElementById("nextBtn");
+  
+  feedback.style.display = "block";
+  nextButton.style.display = "block";
+  
+  // Disable all option buttons
+  const buttons = document.querySelectorAll("#options button");
+  buttons.forEach(btn => {
+    btn.classList.add("disabled");
+    if (btn.innerText === correct) {
+      btn.classList.add("correct");
+    }
+  });
+  
+  if (selected === correct) {
+    score++;
+    resultElement.innerText = "Correct! ✅";
+    meaningElement.innerText = `"${word}" means: ${correct}`;
+    hintElement.innerText = `Memory trick: ${trick}`;
+    selectedButton.classList.add("correct");
+  } else {
+    currentQuestion--; // Reduce progress when wrong
+    resultElement.innerText = "Wrong! ❌";
+    meaningElement.innerText = `"${word}" means: ${correct}`;
+    hintElement.innerText = `Memory trick: ${trick}`;
+    selectedButton.classList.add("incorrect");
+  }
+  
+  nextButton.onclick = () => {
+    currentQuestion++;
+    
+    // Update level completion count
+    document.getElementById("levelCompletion").innerText = 
+      `${Math.min(currentQuestion, levels[currentLevel].words.length)}/${levels[currentLevel].words.length} Completed`;
+    
+    if (currentQuestion < levels[currentLevel].words.length) {
+      showQuestion();
+    } else {
+      showLevelComplete();
+    }
+  };
+}
+
+function showLevelComplete() {
+  document.getElementById("question").innerText = "";
+  document.getElementById("options").innerHTML = "";
+  document.getElementById("feedback").style.display = "none";
+  document.getElementById("score").innerText = "";
+  
+  const levelComplete = document.getElementById("levelComplete");
+  levelComplete.style.display = "block";
+  
+  const levelScore = document.getElementById("levelScore");
+  levelScore.innerText = `Your Score: ${score} / ${levels[currentLevel].words.length}`;
+  
+  const nextLevelBtn = document.getElementById("nextLevelBtn");
+  const restartLevelBtn = document.getElementById("restartLevelBtn");
+  
+  // Handle next level button
+  if (currentLevel < levels.length - 1) {
+    nextLevelBtn.style.display = "inline-block";
+    nextLevelBtn.innerText = `Go to Level ${currentLevel + 2}`;
+    nextLevelBtn.onclick = () => {
+      // Save current level score
+      levelScores[currentLevel] = score;
+      
+      // Move to next level
+      currentLevel++;
+      currentQuestion = levelProgress[currentLevel];
+      score = levelScores[currentLevel];
+      
+      updateLevelUI();
+      levelComplete.style.display = "none";
+      showQuestion();
+    };
+  } else {
+    nextLevelBtn.style.display = "none";
+  }
+  
+  // Handle restart level button
+  restartLevelBtn.onclick = () => {
+    // Reset current level
+    currentQuestion = 0;
+    score = 0;
+    
+    updateLevelUI();
+    levelComplete.style.display = "none";
+    showQuestion();
+  };
+}
+
+function updateProgress() {
+  // Calculate progress for the current level only
+  const progressValue = Math.max(0, currentQuestion);
+  const levelWordCount = levels[currentLevel].words.length;
+  const progress = (progressValue / levelWordCount) * 100;
+  document.getElementById("progressBar").style.width = `${progress}%`;
+}
+
+// Start the quiz
+switchLevel(0);
+</script>
+</body>
+</html>
