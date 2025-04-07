@@ -3,20 +3,47 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Vocabulary Quiz</title>
+<title>Reversed Vocabulary Quiz</title>
 <style>
 body {
   background-color: #121212;
   color: #ffffff;
-  font-family: Arial, sans-serif;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   padding: 20px;
+  background-image: linear-gradient(to bottom right, #121212, #2d2d2d);
+  min-height: 100vh;
 }
 .quiz-container {
-  max-width: 600px;
+  max-width: 650px;
   margin: auto;
+  background-color: rgba(30, 30, 30, 0.8);
+  border-radius: 12px;
+  padding: 25px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  border: 1px solid #333;
+}
+h1 {
+  color: #03dac6;
+  text-align: center;
+  margin-bottom: 25px;
+  text-shadow: 0 0 10px rgba(3, 218, 198, 0.4);
 }
 .question {
   margin-bottom: 20px;
+  background-color: #1f1f1f;
+  padding: 15px;
+  border-radius: 8px;
+  border-left: 4px solid #03dac6;
+}
+.example-sentence {
+  margin-top: 10px;
+  font-style: italic;
+  color: #bb86fc;
+}
+.blank {
+  text-decoration: underline;
+  color: #03dac6;
+  font-weight: bold;
 }
 .options button {
   display: block;
@@ -24,17 +51,30 @@ body {
   background-color: #1f1f1f;
   color: white;
   border: 1px solid #333;
-  padding: 10px;
-  margin: 5px 0;
+  padding: 12px;
+  margin: 8px 0;
   cursor: pointer;
   text-align: left;
+  border-radius: 6px;
+  transition: all 0.2s ease;
 }
 .options button:hover {
   background-color: #333;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 .options button.correct {
   background-color: #1b5e20;
   border-color: #2e7d32;
+  animation: glow 1.5s infinite alternate;
+}
+@keyframes glow {
+  from {
+    box-shadow: 0 0 5px rgba(46, 125, 50, 0.5);
+  }
+  to {
+    box-shadow: 0 0 20px rgba(46, 125, 50, 0.8);
+  }
 }
 .options button.incorrect {
   background-color: #b71c1c;
@@ -43,42 +83,80 @@ body {
 .options button.disabled {
   opacity: 0.7;
   cursor: not-allowed;
+  transform: none;
 }
 .feedback {
-  margin-top: 10px;
-  padding: 15px;
-  border-radius: 5px;
-  background-color: #333;
+  margin-top: 15px;
+  padding: 18px;
+  border-radius: 8px;
+  background-color: #292929;
+  border-left: 4px solid #bb86fc;
+  animation: slideIn 0.3s ease-out;
+}
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 .score {
   font-size: 1.2em;
   margin-top: 20px;
+  text-align: center;
+  color: #03dac6;
+  font-weight: bold;
 }
 .progress-bar {
   width: 100%;
   background-color: #333;
-  border-radius: 5px;
+  border-radius: 10px;
   overflow: hidden;
-  margin-bottom: 20px;
+  margin-bottom: 25px;
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 .progress-bar-fill {
   height: 20px;
-  background-color: #03dac6;
+  background: linear-gradient(90deg, #03dac6, #bb86fc);
   width: 0%;
-  transition: width 0.3s ease;
+  transition: width 0.5s ease;
+  border-radius: 10px;
+  background-size: 200% 100%;
+  animation: gradient 5s ease infinite;
+}
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 .button {
   background-color: #03dac6;
-  color: #000;
+  color: #121212;
   border: none;
-  padding: 10px 20px;
+  padding: 12px 22px;
   margin-top: 15px;
   cursor: pointer;
   font-weight: bold;
-  border-radius: 4px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 .button:hover {
   background-color: #00bfa5;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+.button:active {
+  transform: translateY(1px);
 }
 .next-button {
   display: none;
@@ -86,10 +164,14 @@ body {
 .hint {
   color: #ff9800;
   margin-top: 10px;
+  padding: 5px;
+  border-left: 2px solid #ff9800;
 }
 .meaning {
   color: #4caf50;
-  margin-top: 5px;
+  margin-top: 8px;
+  padding: 5px;
+  border-left: 2px solid #4caf50;
 }
 .level-nav {
   display: flex;
@@ -97,32 +179,94 @@ body {
   margin-bottom: 20px;
 }
 .level-button {
-  background-color: #333;
+  background-color: #292929;
   color: white;
   border: none;
-  padding: 10px 15px;
+  padding: 12px 15px;
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: 6px;
   flex-grow: 1;
   margin: 0 5px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+.level-button:hover {
+  background-color: #333;
+  transform: translateY(-2px);
 }
 .level-button.active {
   background-color: #03dac6;
-  color: #000;
+  color: #121212;
+  font-weight: bold;
+  box-shadow: 0 4px 8px rgba(3, 218, 198, 0.3);
 }
 .level-info {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
+  background-color: #1e1e1e;
+  padding: 10px 15px;
+  border-radius: 8px;
 }
 .level-title {
   font-size: 1.5em;
   font-weight: bold;
+  color: #bb86fc;
 }
 .level-completion {
   font-size: 0.9em;
   color: #03dac6;
+  font-weight: bold;
+}
+#levelComplete {
+  text-align: center;
+  animation: fadeIn 0.5s ease-in;
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+#levelComplete h2 {
+  color: #bb86fc;
+  margin-bottom: 15px;
+  font-size: 2em;
+}
+#levelScore {
+  font-size: 1.5em;
+  margin-bottom: 25px;
+  color: #03dac6;
+}
+#restartLevelBtn {
+  background-color: #ff5722;
+  margin-left: 10px;
+}
+#restartLevelBtn:hover {
+  background-color: #e64a19;
+}
+/* Confetti effect for correct answers */
+.confetti {
+  position: fixed;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  animation: confetti-fall 3s linear forwards;
+  z-index: 100;
+  pointer-events: none;
+}
+@keyframes confetti-fall {
+  0% {
+    opacity: 1;
+    transform: translateY(-100vh) rotate(0deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(100vh) rotate(720deg);
+  }
 }
 </style>
 </head>
@@ -157,112 +301,112 @@ body {
   <h2>Level Complete!</h2>
   <p id="levelScore"></p>
   <button id="nextLevelBtn" class="button">Go to Next Level</button>
-  <button id="restartLevelBtn" class="button" style="background-color: #ff5722;">Restart Level</button>
+  <button id="restartLevelBtn" class="button">Restart Level</button>
 </div>
 </div>
 <script>
 const vocabularyData = [
-  ["Laconic", "Using few words", "Laconic = Lack of words"],
-  ["Conciseness", "Being brief and to the point", "Concise = Cut the nonsense"],
-  ["Insipid", "Lacking flavor or interest", "Insipid = In-sip-id = so dull you barely sip it"],
-  ["Pragmatic", "Practical and realistic", "Pragmatic = Practical-automatic decisions"],
-  ["Iconoclast", "One who attacks established beliefs", "Icon breaker"],
-  ["Arduous", "Difficult and tiring", "Hard for 'us' = Arduous"],
-  ["Profligate", "Wastefully extravagant", "Profit-gate = money goes out like a gate"],
-  ["Prosaic", "Dull, lacking imagination", "Prosaic = Like prose = Boring"],
-  ["Ameliorate", "To improve or make better", "Amelia makes things better"],
-  ["Obsequious", "Overly submissive or eager to please", "Obedient-seekers"],
-  ["Capricious", "Impulsive, unpredictable", "Capri pants in winter = random choice"],
-  ["Fortuitous", "Happening by chance, lucky", "Fortune-it-us"],
-  ["Orthodox", "Traditional, conforming to rules", "Ortho = straight, Dox = doctrine"],
-  ["Alacrity", "Cheerful readiness", "A-laugh-ready"],
-  ["Pellucid", "Clear, easy to understand", "Lucid = clear"],
-  ["Corroborate", "To confirm or give support", "Collaborate to confirm"],
-  ["Magnanimous", "Generous, forgiving", "Magnum = big heart"],
-  ["Scrupulous", "Very careful and honest", "Screws everything into place neatly"],
-  ["Prolific", "Productive", "Pro-lots-of-it"],
-  ["Dogmatic", "Dictatorial in opinions", "Dogma = rigid beliefs"],
-  ["Placate", "To calm or pacify", "Place-a-calm"],
-  ["Mercurial", "Unpredictable, moody", "Mercury = liquid, ever-changing"],
-  ["Exacerbate", "To make worse", "Exact-worse-state"],
-  ["Redundant", "Repetitive, unnecessary", "Redone again and again"],
-  ["Hackneyed", "Overused, clichéd", "Hacked again and again"],
-  ["Prudent", "Careful, wise", "Prudent = President = wise decisions"],
-  ["Belie", "To give a false impression", "Be-lie = Lie in being"],
-  ["Esoteric", "Understood by few", "ESO = elite secret order"],
-  ["Cacophony", "Harsh noise", "Cacophony = 'Caco' (bad) + 'phony' (sound)"],
-  ["Impetuous", "Acting quickly without thought", "Impulsive like a pet"],
-  ["Methodical", "Systematic and organized", "Method = order"],
-  ["Idiosyncrasy", "Peculiar trait", "Idiot + synch = weird sync"],
-  ["Extant", "Still existing", "Existent and not extinct"],
-  ["Obscure", "Unclear, hard to understand", "Obscured view"],
-  ["Didactic", "Intended to teach", "Didactic = dictator teaching"],
-  ["Pithy", "Concise and meaningful", "Full of 'pith' (essence)"],
-  ["Copious", "Abundant", "Copy-us = lots of copies"],
-  ["Ostentation", "Showy display", "Ostentatious = show-off"],
-  ["Adulterate", "To make impure", "Adult-erate = spoil something pure"],
-  ["Vociferous", "Loud and noisy", "Voice + furious"],
-  ["Taciturn", "Silent, not talkative", "Takes turn to talk = rarely"],
-  ["Obdurate", "Stubborn", "Durable in opinion"],
-  ["Garrulous", "Talkative", "Girls are often labeled this (stereotype)"],
-  ["Misanthrope", "Hater of mankind", "Miss-anthro = hates humans"],
-  ["Lionize", "To treat as a celebrity", "Make someone a lion = star"],
-  ["Imminent", "About to happen", "Immediate moment"],
-  ["Frivolous", "Not serious", "Frills = decorative = not important"],
-  ["Benign", "Harmless", "Bene = good"],
-  ["Dissonance", "Lack of harmony", "Dis + sonance (sound)"],
-  ["Exculpate", "To free from blame", "Ex-culprit"],
-  ["Inculpate", "To blame", "In-culprit"],
-  ["Compliant", "Obedient", "Complies easily"],
-  ["Sporadic", "Occasional", "Spots of activity"],
-  ["Prevaricate", "To lie or evade truth", "Pre-verify = avoid truth"],
-  ["Chicanery", "Deception", "Chicken + trickery"],
-  ["Gainsay", "To deny", "Gain? Say NO."],
-  ["Eulogy", "Praise after death", "Eu = good + logy = speech"],
-  ["Belligerent", "Aggressive", "Bellum = war"],
-  ["Dispassionate", "Unemotional, impartial", "Without passion"],
-  ["Providential", "Lucky, fortunate", "Provided by divine luck"],
-  ["Diffidence", "Shyness due to lack of confidence", "Difficult to be confident"],
-  ["Fractious", "Irritable, quarrelsome", "Fractured mood"],
-  ["Malign", "To speak evil of", "Mal = bad"],
-  ["Disparate", "Different", "Dis + separate"],
-  ["Plausible", "Believable", "Applause = seems right"],
-  ["Sanguine", "Optimistic", "Sang = blood = life = hope"],
-  ["Venerate", "To respect deeply", "Reverent = Venerate"],
-  ["Trite", "Overused and unoriginal", "Tried too many times"],
-  ["Succinct", "Brief and clear", "Sucked into few words"],
-  ["Ingenious", "Clever", "Engineered with genius"],
-  ["Meticulous", "Very careful", "Meter = measure every detail"],
-  ["Erudite", "Scholarly", "Rude but right — knows it all"],
-  ["Bolster", "To support", "Bolster = Pillow = Support"],
-  ["Anachronism", "Something out of its time", "Ana + Chronos (time mismatch)"],
-  ["Trivial", "Unimportant", "Trivia = small facts"],
-  ["Advocate", "Support publicly", "Advocate = Voice for"],
-  ["Conspicuous", "Easily seen", "Can spot you"],
-  ["Innocuous", "Harmless", "Not noxious"],
-  ["Audacious", "Bold", "Audio + Courageous"],
-  ["Tumultuous", "Noisy and chaotic", "Too much tumult"],
-  ["Reticent", "Reserved", "Reluctant to talk"],
-  ["Fervid", "Intensely passionate", "Feverish love"],
-  ["Innovate", "To introduce something new", "New within"],
-  ["Prodigal", "Wastefully extravagant", "Pro + dig all money out"],
-  ["Auspicious", "Favorable", "Auspice = lucky sign"],
-  ["Soporific", "Sleep-inducing", "So-poor-fic = boring = sleep"],
-  ["Engender", "To cause or give rise to", "Generate"],
-  ["Loquacious", "Talkative", "Loqu = speak a lot"],
-  ["Equivocate", "Use ambiguous language", "Equal + Vocal = both sides"],
-  ["Inimical", "Hostile", "Enemy-cal"],
-  ["Superfluous", "Unnecessary", "Overflowing"],
-  ["Fastidious", "Very attentive to detail", "Fast to notice mistakes"],
-  ["Recalcitrant", "Stubbornly disobedient", "Can't be recalibrated"],
-  ["Ephemeral", "Short-lived", "FM radio – here and gone"],
-  ["Pusillanimous", "Cowardly", "Pussy-animal"],
-  ["Vacillate", "To waver", "Sway like a fan"],
-  ["Ambivalent", "Having mixed feelings", "Am-bi = both + valent = values"],
-  ["Enigma", "Puzzle, mystery", "Enigmatic = can't figure out"],
-  ["Euphoric", "Extremely happy", "Euphoria = top joy"],
-  ["Pedant", "Someone overly concerned with rules or minor details", "Pedantic teacher"],
-  ["Profound", "Deep and meaningful", "Found in the depths"]
+  ["Laconic", "Using few words", "Laconic = Lack of words", "The professor's _____ response conveyed volumes despite its brevity."],
+  ["Conciseness", "Being brief and to the point", "Concise = Cut the nonsense", "The _____ of her speech impressed everyone as she delivered her message in just two minutes."],
+  ["Insipid", "Lacking flavor or interest", "Insipid = In-sip-id = so dull you barely sip it", "The critic described the film as _____, lacking any creative spark or originality."],
+  ["Pragmatic", "Practical and realistic", "Pragmatic = Practical-automatic decisions", "Taking a _____ approach, she focused on solutions that could be implemented immediately."],
+  ["Iconoclast", "One who attacks established beliefs", "Icon breaker", "As an _____, she challenged the traditional methods that had been used for decades."],
+  ["Arduous", "Difficult and tiring", "Hard for 'us' = Arduous", "The _____ journey across the mountains tested their physical and mental endurance."],
+  ["Profligate", "Wastefully extravagant", "Profit-gate = money goes out like a gate", "His _____ spending quickly depleted the inheritance he had received."],
+  ["Prosaic", "Dull, lacking imagination", "Prosaic = Like prose = Boring", "The office building's _____ design reflected the company's conservative approach."],
+  ["Ameliorate", "To improve or make better", "Amelia makes things better", "The new policies were designed to _____ working conditions for all employees."],
+  ["Obsequious", "Overly submissive or eager to please", "Obedient-seekers", "The _____ assistant constantly asked if there was anything else he could do to help."],
+  ["Capricious", "Impulsive, unpredictable", "Capri pants in winter = random choice", "Her _____ decision-making made it difficult for the team to plan ahead."],
+  ["Fortuitous", "Happening by chance, lucky", "Fortune-it-us", "Their meeting was entirely _____, yet it changed the course of both their lives."],
+  ["Orthodox", "Traditional, conforming to rules", "Ortho = straight, Dox = doctrine", "The professor took an _____ approach to teaching classical literature."],
+  ["Alacrity", "Cheerful readiness", "A-laugh-ready", "She accepted the challenging assignment with _____, eager to prove her abilities."],
+  ["Pellucid", "Clear, easy to understand", "Lucid = clear", "His _____ explanation made the complex concept accessible to everyone."],
+  ["Corroborate", "To confirm or give support", "Collaborate to confirm", "The new evidence helped to _____ the witness's account of the events."],
+  ["Magnanimous", "Generous, forgiving", "Magnum = big heart", "In a _____ gesture, she offered to help her competitor prepare for the next competition."],
+  ["Scrupulous", "Very careful and honest", "Screws everything into place neatly", "The accountant was known for his _____ attention to every financial detail."],
+  ["Prolific", "Productive", "Pro-lots-of-it", "The _____ writer published three bestselling novels in a single year."],
+  ["Dogmatic", "Dictatorial in opinions", "Dogma = rigid beliefs", "His _____ approach to management left no room for creative solutions."],
+  ["Placate", "To calm or pacify", "Place-a-calm", "She tried to _____ the angry customer with a free upgrade and sincere apology."],
+  ["Mercurial", "Unpredictable, moody", "Mercury = liquid, ever-changing", "The team struggled to adapt to their _____ manager's constantly shifting priorities."],
+  ["Exacerbate", "To make worse", "Exact-worse-state", "The harsh criticism only served to _____ the tense situation in the office."],
+  ["Redundant", "Repetitive, unnecessary", "Redone again and again", "The report contained _____ information that had already been covered in the introduction."],
+  ["Hackneyed", "Overused, clichéd", "Hacked again and again", "The movie relied on _____ plot devices that audiences had seen countless times before."],
+  ["Prudent", "Careful, wise", "Prudent = President = wise decisions", "It would be _____ to save some money rather than spending your entire bonus."],
+  ["Belie", "To give a false impression", "Be-lie = Lie in being", "Her calm exterior did _____ the anxiety she felt about the upcoming presentation."],
+  ["Esoteric", "Understood by few", "ESO = elite secret order", "The professor's lecture on quantum physics was too _____ for most of the undergraduate students."],
+  ["Cacophony", "Harsh noise", "Cacophony = 'Caco' (bad) + 'phony' (sound)", "The _____ of car horns and sirens made it impossible to concentrate."],
+  ["Impetuous", "Acting quickly without thought", "Impulsive like a pet", "His _____ decision to quit his job without another one lined up caused financial strain."],
+  ["Methodical", "Systematic and organized", "Method = order", "The detective's _____ approach to the investigation left no stone unturned."],
+  ["Idiosyncrasy", "Peculiar trait", "Idiot + synch = weird sync", "One of the author's charming _____ was her habit of using nautical metaphors in everyday conversation."],
+  ["Extant", "Still existing", "Existent and not extinct", "These ruins are among the few _____ examples of ancient Mayan architecture."],
+  ["Obscure", "Unclear, hard to understand", "Obscured view", "The professor's explanation was so _____ that most students left the lecture confused."],
+  ["Didactic", "Intended to teach", "Didactic = dictator teaching", "The _____ nature of the book made it perfect for classroom use but less enjoyable as leisure reading."],
+  ["Pithy", "Concise and meaningful", "Full of 'pith' (essence)", "Her _____ comments often captured complex ideas in just a few well-chosen words."],
+  ["Copious", "Abundant", "Copy-us = lots of copies", "The researcher took _____ notes during the experiment, recording every detail."],
+  ["Ostentation", "Showy display", "Ostentatious = show-off", "The billionaire's _____ in decorating his mansion with gold fixtures was widely criticized."],
+  ["Adulterate", "To make impure", "Adult-erate = spoil something pure", "Some dishonest vendors would _____ the olive oil with cheaper alternatives."],
+  ["Vociferous", "Loud and noisy", "Voice + furious", "The _____ crowd protested the controversial decision well into the night."],
+  ["Taciturn", "Silent, not talkative", "Takes turn to talk = rarely", "The _____ man sat in the corner, observing but rarely contributing to the conversation."],
+  ["Obdurate", "Stubborn", "Durable in opinion", "Despite all evidence to the contrary, he remained _____ in his outdated beliefs."],
+  ["Garrulous", "Talkative", "Girls are often labeled this (stereotype)", "The _____ passenger talked non-stop throughout the entire flight."],
+  ["Misanthrope", "Hater of mankind", "Miss-anthro = hates humans", "As a committed _____, he preferred the company of his books to that of people."],
+  ["Lionize", "To treat as a celebrity", "Make someone a lion = star", "The media tended to _____ young tech entrepreneurs as modern-day heroes."],
+  ["Imminent", "About to happen", "Immediate moment", "With dark clouds gathering, a storm seemed _____."],
+  ["Frivolous", "Not serious", "Frills = decorative = not important", "The judge dismissed the _____ lawsuit as a waste of the court's time."],
+  ["Benign", "Harmless", "Bene = good", "The doctor reassured her that the growth was _____ and not a cause for concern."],
+  ["Dissonance", "Lack of harmony", "Dis + sonance (sound)", "There was a cognitive _____ between his stated values and his actual behavior."],
+  ["Exculpate", "To free from blame", "Ex-culprit", "The new evidence helped to _____ the wrongfully accused man."],
+  ["Inculpate", "To blame", "In-culprit", "The detective found evidence that would _____ the suspected embezzler."],
+  ["Compliant", "Obedient", "Complies easily", "The _____ student always followed the teacher's instructions precisely."],
+  ["Sporadic", "Occasional", "Spots of activity", "Due to the remote location, cell phone coverage was _____ at best."],
+  ["Prevaricate", "To lie or evade truth", "Pre-verify = avoid truth", "When asked direct questions about the scandal, the politician tended to _____."],
+  ["Chicanery", "Deception", "Chicken + trickery", "The company's financial _____ eventually led to its downfall."],
+  ["Gainsay", "To deny", "Gain? Say NO.", "No one could _____ the positive impact the program had on the community."],
+  ["Eulogy", "Praise after death", "Eu = good + logy = speech", "His moving _____ captured the essence of his father's character and accomplishments."],
+  ["Belligerent", "Aggressive", "Bellum = war", "The _____ customer began shouting demands at the store manager."],
+  ["Dispassionate", "Unemotional, impartial", "Without passion", "The judge maintained a _____ demeanor throughout the emotional trial."],
+  ["Providential", "Lucky, fortunate", "Provided by divine luck", "Their _____ meeting in the airport led to a successful business partnership."],
+  ["Diffidence", "Shyness due to lack of confidence", "Difficult to be confident", "Despite her expertise, her _____ made it hard for her to speak up in meetings."],
+  ["Fractious", "Irritable, quarrelsome", "Fractured mood", "The team became increasingly _____ as the deadline approached."],
+  ["Malign", "To speak evil of", "Mal = bad", "It is unprofessional to _____ former employers during job interviews."],
+  ["Disparate", "Different", "Dis + separate", "The committee brought together people with _____ backgrounds and perspectives."],
+  ["Plausible", "Believable", "Applause = seems right", "She offered a _____ explanation for her late arrival, though I remained skeptical."],
+  ["Sanguine", "Optimistic", "Sang = blood = life = hope", "He remained _____ about the company's prospects despite the economic downturn."],
+  ["Venerate", "To respect deeply", "Reverent = Venerate", "Many cultures _____ their ancestors through various traditions and practices."],
+  ["Trite", "Overused and unoriginal", "Tried too many times", "The greeting card contained _____ sentiments that failed to convey sincere emotion."],
+  ["Succinct", "Brief and clear", "Sucked into few words", "Her _____ summary captured the main points of the three-hour meeting in just two paragraphs."],
+  ["Ingenious", "Clever", "Engineered with genius", "The _____ solution saved both time and money while improving quality."],
+  ["Meticulous", "Very careful", "Meter = measure every detail", "The watchmaker's _____ attention to detail was evident in every piece he created."],
+  ["Erudite", "Scholarly", "Rude but right — knows it all", "The professor's _____ lecture demonstrated her deep knowledge of ancient civilizations."],
+  ["Bolster", "To support", "Bolster = Pillow = Support", "The new data helped to _____ their argument for increased funding."],
+  ["Anachronism", "Something out of its time", "Ana + Chronos (time mismatch)", "The knight with a wristwatch in the historical painting was a glaring _____."],
+  ["Trivial", "Unimportant", "Trivia = small facts", "What seemed like a _____ detail ultimately proved to be crucial to solving the case."],
+  ["Advocate", "Support publicly", "Advocate = Voice for", "She continues to _____ for educational reform based on her classroom experience."],
+  ["Conspicuous", "Easily seen", "Can spot you", "His _____ absence from the meeting was noted by everyone."],
+  ["Innocuous", "Harmless", "Not noxious", "What seemed like an _____ comment actually caused significant offense."],
+  ["Audacious", "Bold", "Audio + Courageous", "The company's _____ plan to enter an entirely new market surprised industry experts."],
+  ["Tumultuous", "Noisy and chaotic", "Too much tumult", "The press conference devolved into a _____ shouting match."],
+  ["Reticent", "Reserved", "Reluctant to talk", "The _____ witness needed gentle encouragement to share what she had seen."],
+  ["Fervid", "Intensely passionate", "Feverish love", "His _____ defense of the controversial policy alienated many of his supporters."],
+  ["Innovate", "To introduce something new", "New within", "The company continues to _____ in an increasingly competitive market."],
+  ["Prodigal", "Wastefully extravagant", "Pro + dig all money out", "The _____ heir squandered his entire inheritance in less than a year."],
+  ["Auspicious", "Favorable", "Auspice = lucky sign", "The clear skies on the morning of the outdoor wedding seemed _____."],
+  ["Soporific", "Sleep-inducing", "So-poor-fic = boring = sleep", "The professor's monotone delivery had a _____ effect on the students."],
+  ["Engender", "To cause or give rise to", "Generate", "His confrontational management style tended to _____ resentment among staff."],
+  ["Loquacious", "Talkative", "Loqu = speak a lot", "The _____ tour guide shared fascinating stories throughout the entire three-hour tour."],
+  ["Equivocate", "Use ambiguous language", "Equal + Vocal = both sides", "Politicians often _____ when asked direct questions about controversial issues."],
+  ["Inimical", "Hostile", "Enemy-cal", "The proposal was _____ to the company's long-term interests."],
+  ["Superfluous", "Unnecessary", "Overflowing", "The editor removed all _____ details to make the article more concise."],
+  ["Fastidious", "Very attentive to detail", "Fast to notice mistakes", "The _____ chef insisted that every plate be arranged perfectly before serving."],
+  ["Recalcitrant", "Stubbornly disobedient", "Can't be recalibrated", "The _____ student refused to follow any of the classroom rules."],
+  ["Ephemeral", "Short-lived", "FM radio – here and gone", "The beauty of cherry blossoms is _____, lasting only a few days each spring."],
+  ["Pusillanimous", "Cowardly", "Pussy-animal", "The _____ response to the crisis showed a lack of leadership."],
+  ["Vacillate", "To waver", "Sway like a fan", "She continued to _____ between the two job offers, unable to make a decision."],
+  ["Ambivalent", "Having mixed feelings", "Am-bi = both + valent = values", "He felt _____ about the promotion, which offered more money but less creative freedom."],
+  ["Enigma", "Puzzle, mystery", "Enigmatic = can't figure out", "The ancient text remained an _____ that scholars had yet to decipher."],
+  ["Euphoric", "Extremely happy", "Euphoria = top joy", "The team was _____ after winning the championship for the first time."],
+  ["Pedant", "Someone overly concerned with rules or minor details", "Pedantic teacher", "The office _____ corrected everyone's grammar, much to their annoyance."],
+  ["Profound", "Deep and meaningful", "Found in the depths", "The experience had a _____ impact on how she viewed the world."]
 ];
 
 // Divide into three levels - shuffle first so each quiz experience is different
@@ -277,7 +421,8 @@ const levels = [
     words: shuffledData.slice(0, wordsPerLevel).map(item => ({
       word: item[0],
       meaning: item[1],
-      trick: item[2]
+      trick: item[2],
+      sentence: item[3]
     }))
   },
   {
@@ -285,7 +430,8 @@ const levels = [
     words: shuffledData.slice(wordsPerLevel, wordsPerLevel * 2).map(item => ({
       word: item[0],
       meaning: item[1],
-      trick: item[2]
+      trick: item[2],
+      sentence: item[3]
     }))
   },
   {
@@ -293,7 +439,8 @@ const levels = [
     words: shuffledData.slice(wordsPerLevel * 2).map(item => ({
       word: item[0],
       meaning: item[1],
-      trick: item[2]
+      trick: item[2],
+      sentence: item[3]
     }))
   }
 ];
@@ -359,8 +506,13 @@ function showQuestion() {
   }
   
   const q = currentLevelWords[currentQuestion];
-  // REVERSED: Show meaning as the question
-  document.getElementById("question").innerText = `Which word means "${q.meaning}"?`;
+  
+  // Create question with meaning and example sentence
+  const questionElement = document.getElementById("question");
+  questionElement.innerHTML = `
+    <div>Which word means "${q.meaning}"?</div>
+    <div class="example-sentence">Example: "${q.sentence.replace("_____", '<span class="blank">_____</span>')}"</div>
+  `;
   
   // Get 3 random wrong answers from all words
   const allWords = vocabularyData.map(item => item[0]);
@@ -376,7 +528,7 @@ function showQuestion() {
     btn.innerText = option;
     btn.addEventListener("click", () => {
       if (!answered) {
-        checkAnswer(option, q.word, q.trick, q.meaning, btn);
+        checkAnswer(option, q.word, q.trick, q.meaning, btn, q.sentence);
       }
     });
     document.getElementById("options").appendChild(btn);
@@ -386,7 +538,7 @@ function showQuestion() {
   updateLevelUI();
 }
 
-function checkAnswer(selected, correct, trick, meaning, selectedButton) {
+function checkAnswer(selected, correct, trick, meaning, selectedButton, sentence) {
   answered = true;
   const feedback = document.getElementById("feedback");
   const resultElement = document.getElementById("result");
@@ -395,104 +547,125 @@ function checkAnswer(selected, correct, trick, meaning, selectedButton) {
   const nextButton = document.getElementById("nextBtn");
   
   feedback.style.display = "block";
-  nextButton.style.display = "block";
-  
-  // Disable all option buttons
-  const buttons = document.querySelectorAll("#options button");
-  buttons.forEach(btn => {
-    btn.classList.add("disabled");
-    if (btn.innerText === correct) {
-      btn.classList.add("correct");
-    }
-  });
   
   if (selected === correct) {
-    score++;
-    resultElement.innerText = "Correct! ✅";
-    meaningElement.innerText = `"${correct}" means: ${meaning}`;
-    hintElement.innerText = `Memory trick: ${trick}`;
     selectedButton.classList.add("correct");
+    resultElement.innerHTML = `<strong>Correct!</strong> "${correct}" is the right answer.`;
+    score++;
+    createConfetti();
   } else {
-    currentQuestion--; // Reduce progress when wrong
-    resultElement.innerText = "Wrong! ❌";
-    meaningElement.innerText = `"${correct}" means: ${meaning}`;
-    hintElement.innerText = `Memory trick: ${trick}`;
     selectedButton.classList.add("incorrect");
+    // Find and highlight the correct answer
+    Array.from(document.getElementById("options").children).forEach(btn => {
+      if (btn.innerText === correct) {
+        btn.classList.add("correct");
+      }
+      btn.classList.add("disabled");
+    });
+    resultElement.innerHTML = `<strong>Incorrect.</strong> The right answer is "${correct}".`;
   }
   
-  nextButton.onclick = () => {
-    currentQuestion++;
-    
-    // Update level completion count
-    document.getElementById("levelCompletion").innerText = 
-      `${Math.min(currentQuestion, levels[currentLevel].words.length)}/${levels[currentLevel].words.length} Completed`;
-    
-    if (currentQuestion < levels[currentLevel].words.length) {
-      showQuestion();
-    } else {
-      showLevelComplete();
-    }
-  };
+  meaningElement.innerHTML = `<strong>Meaning:</strong> ${meaning}`;
+  hintElement.innerHTML = `<strong>Memory Trick:</strong> ${trick}`;
+  nextButton.style.display = "block";
+  
+  // Update score display
+  document.getElementById("score").innerText = `Score: ${score}`;
+}
+
+function updateProgress() {
+  const progressPercent = (currentQuestion / levels[currentLevel].words.length) * 100;
+  document.getElementById("progressBar").style.width = `${progressPercent}%`;
+}
+
+function nextQuestion() {
+  // Clear previous answer styling
+  Array.from(document.getElementById("options").children).forEach(btn => {
+    btn.classList.remove("correct", "incorrect", "disabled");
+  });
+  
+  currentQuestion++;
+  
+  // Update level progress
+  levelProgress[currentLevel] = currentQuestion;
+  levelScores[currentLevel] = score;
+  
+  if (currentQuestion >= levels[currentLevel].words.length) {
+    showLevelComplete();
+  } else {
+    showQuestion();
+  }
 }
 
 function showLevelComplete() {
-  document.getElementById("question").innerText = "";
+  document.getElementById("question").innerHTML = "";
   document.getElementById("options").innerHTML = "";
   document.getElementById("feedback").style.display = "none";
-  document.getElementById("score").innerText = "";
   
-  const levelComplete = document.getElementById("levelComplete");
-  levelComplete.style.display = "block";
+  const levelCompleteElement = document.getElementById("levelComplete");
+  levelCompleteElement.style.display = "block";
   
-  const levelScore = document.getElementById("levelScore");
-  levelScore.innerText = `Your Score: ${score} / ${levels[currentLevel].words.length}`;
+  const totalPossible = levels[currentLevel].words.length;
+  const scorePercent = Math.round((score / totalPossible) * 100);
   
+  document.getElementById("levelScore").innerHTML = `You scored ${score} out of ${totalPossible} (${scorePercent}%)`;
+  
+  // Setup next level button
   const nextLevelBtn = document.getElementById("nextLevelBtn");
-  const restartLevelBtn = document.getElementById("restartLevelBtn");
-  
-  // Handle next level button
   if (currentLevel < levels.length - 1) {
     nextLevelBtn.style.display = "inline-block";
-    nextLevelBtn.innerText = `Go to Level ${currentLevel + 2}`;
-    nextLevelBtn.onclick = () => {
-      // Save current level score
-      levelScores[currentLevel] = score;
-      
-      // Move to next level
-      currentLevel++;
-      currentQuestion = levelProgress[currentLevel];
-      score = levelScores[currentLevel];
-      
-      updateLevelUI();
-      levelComplete.style.display = "none";
-      showQuestion();
-    };
+    nextLevelBtn.innerText = `Go to ${levels[currentLevel + 1].title}`;
+    nextLevelBtn.onclick = () => switchLevel(currentLevel + 1);
   } else {
     nextLevelBtn.style.display = "none";
   }
   
-  // Handle restart level button
-  restartLevelBtn.onclick = () => {
-    // Reset current level
-    currentQuestion = 0;
+  // Setup restart level button
+  document.getElementById("restartLevelBtn").onclick = () => {
     score = 0;
-    
-    updateLevelUI();
-    levelComplete.style.display = "none";
+    currentQuestion = 0;
+    levelProgress[currentLevel] = 0;
+    levelScores[currentLevel] = 0;
+    levelCompleteElement.style.display = "none";
     showQuestion();
   };
 }
 
-function updateProgress() {
-  // Calculate progress for the current level only
-  const progressValue = Math.max(0, currentQuestion);
-  const levelWordCount = levels[currentLevel].words.length;
-  const progress = (progressValue / levelWordCount) * 100;
-  document.getElementById("progressBar").style.width = `${progress}%`;
+function createConfetti() {
+  for (let i = 0; i < 50; i++) {
+    const confetti = document.createElement("div");
+    confetti.className = "confetti";
+    
+    // Random position
+    confetti.style.left = Math.random() * 100 + "vw";
+    
+    // Random color
+    const colors = ["#03dac6", "#bb86fc", "#ff5722", "#ff9800", "#8bc34a"];
+    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+    
+    // Random size
+    const size = Math.random() * 10 + 5;
+    confetti.style.width = size + "px";
+    confetti.style.height = size + "px";
+    
+    // Random animation duration
+    confetti.style.animationDuration = Math.random() * 2 + 1 + "s";
+    
+    document.body.appendChild(confetti);
+    
+    // Remove after animation
+    setTimeout(() => {
+      confetti.remove();
+    }, 3000);
+  }
 }
 
+// Setup next button
+document.getElementById("nextBtn").addEventListener("click", nextQuestion);
+
 // Start the quiz
-switchLevel(0);
+showQuestion();
+
 </script>
 </body>
 </html>
