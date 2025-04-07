@@ -128,7 +128,7 @@ body {
 </head>
 <body>
 <div class="quiz-container">
-<h1>Vocabulary Quiz</h1>
+<h1>Reversed Vocabulary Quiz</h1>
 
 <div class="level-nav">
   <button id="level1Btn" class="level-button active">Level 1: Beginner</button>
@@ -149,7 +149,7 @@ body {
 <div id="feedback" class="feedback" style="display: none;">
   <div id="result"></div>
   <div id="meaning" class="meaning"></div>
-  <div id="hint" class="hint"></div>
+  <div id="hint" class="hint"></div> 
   <button id="nextBtn" class="button next-button">Next Question</button>
 </div>
 <div id="score" class="score"></div>
@@ -359,14 +359,15 @@ function showQuestion() {
   }
   
   const q = currentLevelWords[currentQuestion];
-  document.getElementById("question").innerText = `What does "${q.word}" mean?`;
+  // REVERSED: Show meaning as the question
+  document.getElementById("question").innerText = `Which word means "${q.meaning}"?`;
   
   // Get 3 random wrong answers from all words
-  const allMeanings = vocabularyData.map(item => item[1]);
-  const wrongOptions = allMeanings.filter(meaning => meaning !== q.meaning);
+  const allWords = vocabularyData.map(item => item[0]);
+  const wrongOptions = allWords.filter(word => word !== q.word);
   wrongOptions.sort(() => Math.random() - 0.5);
   
-  const options = [q.meaning, wrongOptions[0], wrongOptions[1], wrongOptions[2]];
+  const options = [q.word, wrongOptions[0], wrongOptions[1], wrongOptions[2]];
   options.sort(() => Math.random() - 0.5);
   
   document.getElementById("options").innerHTML = "";
@@ -375,7 +376,7 @@ function showQuestion() {
     btn.innerText = option;
     btn.addEventListener("click", () => {
       if (!answered) {
-        checkAnswer(option, q.meaning, q.trick, q.word, btn);
+        checkAnswer(option, q.word, q.trick, q.meaning, btn);
       }
     });
     document.getElementById("options").appendChild(btn);
@@ -385,7 +386,7 @@ function showQuestion() {
   updateLevelUI();
 }
 
-function checkAnswer(selected, correct, trick, word, selectedButton) {
+function checkAnswer(selected, correct, trick, meaning, selectedButton) {
   answered = true;
   const feedback = document.getElementById("feedback");
   const resultElement = document.getElementById("result");
@@ -408,13 +409,13 @@ function checkAnswer(selected, correct, trick, word, selectedButton) {
   if (selected === correct) {
     score++;
     resultElement.innerText = "Correct! ✅";
-    meaningElement.innerText = `"${word}" means: ${correct}`;
+    meaningElement.innerText = `"${correct}" means: ${meaning}`;
     hintElement.innerText = `Memory trick: ${trick}`;
     selectedButton.classList.add("correct");
   } else {
     currentQuestion--; // Reduce progress when wrong
     resultElement.innerText = "Wrong! ❌";
-    meaningElement.innerText = `"${word}" means: ${correct}`;
+    meaningElement.innerText = `"${correct}" means: ${meaning}`;
     hintElement.innerText = `Memory trick: ${trick}`;
     selectedButton.classList.add("incorrect");
   }
